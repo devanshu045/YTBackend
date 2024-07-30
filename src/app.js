@@ -1,32 +1,35 @@
-import express from 'express'
-import cors from 'cors'
-import cookieParser from "cookie-parser"
-
+import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
-
-app.use(cors());
-app.use(express.json({
-    limit : "16kb"
+// Configure CORS to allow requests from your frontend
+app.use(cors({
+    origin: 'http://localhost:8000', // Adjust the port if your frontend runs on a different port
+    optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 }));
-app.use(express.urlencoded({extended: true, limit: "16kb"}))
 
+// Middleware to parse JSON and URL-encoded data with limits
+app.use(express.json({
+    limit: '16kb'
+}));
+app.use(express.urlencoded({
+    extended: true,
+    limit: '16kb'
+}));
 
-app.use(express.static("public"));
+// Middleware to serve static files
+app.use(express.static('public'));
+
+// Middleware to parse cookies
 app.use(cookieParser());
 
-// routes import 
-import userRoute from './Routes/Userroutes.js'
+// Import routes
+import userRoute from './Routes/Userroutes.js';
 
+// Use routes
+app.use('/user', userRoute);
 
-
-
-//rotues
-app.use('/User',userRoute)
-
-
-
-
-
-export {app}
+// Export the app
+export { app };

@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
 import bcrypt from 'bcrypt'
+import jwt from "jsonwebtoken"
 
 const UserSchea = mongoose.Schema({
-  username: {
+  userName: {
     type: String,
     required: true,
     unique: true,
@@ -54,5 +55,36 @@ UserSchea.method.isPasswordCorrect = async function(password){
  return await bcrypt.compare(this.password,password);
 }
 
+UserSchea.method.genrateAccessToken = async function(){
+     return jwt.sign(
+        {
+              //which details want to convert
+              _id: this._id,
+              email: this.email,
+              username: this.username,
+              fullName: this.fullName
+        },
+        // secrate key
+        process.env.ACCESS_TOKEN_SECRET,
+
+        {
+            // experire date
+            expiresIn: process.env.ACCESS_TOKEN_EXPIRY
+        }
+     )
+}
+
+
+UserSchea.method.genrateRefreshToken = async function(){
+    return jwt.sign(
+        {
+            _id: this._id
+        },
+        process.env.REFRESH_TOKEN_SECRET,
+        {
+           expiresIn : process.env.REFRESH_TOKEN_EXPIRY
+        }
+    )
+}
 
 export const User = mongoose.model('User',UserSchea)
